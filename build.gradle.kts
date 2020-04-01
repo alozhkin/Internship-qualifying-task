@@ -17,6 +17,4 @@ buildscript {
     }
 }
 
-allprojects {
-    apply(plugin = "org.jetbrains.internship")
-}
+apply(plugin = "org.jetbrains.internship")
