@@ -13,8 +13,12 @@ buildscript {
         }
     }
     dependencies {
-        classpath("org.jetbrains.internship:hash-sum-plugin")
+        classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
     }
 }
 
 apply(plugin = "org.jetbrains.internship")
+
+configure<org.jetbrains.internship.HashSumPluginExtension> {
+    algorithm = "SHA-256"
+}

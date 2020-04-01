@@ -12,3 +12,5 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation("junit", "junit", "4.12")
 }
+
+version = "1.0.0"

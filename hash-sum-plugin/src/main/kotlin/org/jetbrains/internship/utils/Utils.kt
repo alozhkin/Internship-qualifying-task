@@ -10,3 +10,10 @@ fun ByteArray.toHexString(): String {
     }
     return String(hexChars)
 }
+
+fun String.normalizeToAlgorithm(): String {
+    with(this) {
+        if (toLowerCase().contains("^sha[^-]".toRegex())) return substring(0..2) + "-" + substring(3)
+    }
+    return this
+}
