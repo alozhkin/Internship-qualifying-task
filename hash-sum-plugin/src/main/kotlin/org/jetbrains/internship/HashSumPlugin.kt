@@ -10,20 +10,22 @@ import org.jetbrains.internship.tasks.HashTask
 open class HashSumPluginExtension {
     var algorithm = "SHA-1"
     var fileExtensions = listOf("kt", "java")
+    var outputFileName = "hash_sum.txt"
 }
 
 class HashSumPlugin : Plugin<Project> {
     override fun apply(p0: Project) {
         val ext = p0.extensions.create<HashSumPluginExtension>("greeting")
 
-        val inputDirs = mutableListOf<Directory>()
-        val outFiles = mutableListOf<RegularFile>()
-        for (project in p0.allprojects) {
-            val projectDir = project.layout.projectDirectory;
-            inputDirs.add(projectDir)
-            outFiles.add((projectDir.file("build/hash_sum.txt")))
-        }
         p0.tasks.addRule("Pattern: calculate<ID>") {
+            val inputDirs = mutableListOf<Directory>()
+            val outFiles = mutableListOf<RegularFile>()
+            for (project in p0.allprojects) {
+                val projectDir = project.layout.projectDirectory;
+                inputDirs.add(projectDir)
+                outFiles.add((projectDir.file("build/" + ext.outputFileName)))
+            }
+
             val taskName = this
             if (startsWith("calculate")) {
                 p0.tasks.create(taskName, HashTask::class.java) {
