@@ -11,7 +11,7 @@ import java.io.File
 class HashSumPluginTest {
     companion object {
         val SHA_1_FILE_PATH: String
-            get() = TODO("Replace with hash-sum file path")
+            get() = "hash_sum.txt"
         const val CALCULATE_SHA_1_TASK_NAME = "calculateSha1"
 
         val String.isSHA1Content: Boolean
