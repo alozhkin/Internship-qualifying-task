@@ -1,6 +1,6 @@
 plugins {
     java
-    kotlin("jvm")
+    kotlin("jvm") version("1.3.71")
 }
 
 repositories {

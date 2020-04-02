@@ -1,24 +1,20 @@
-plugins {
-    kotlin("jvm") version "1.3.70"
-}
+//plugins {
+//    kotlin("jvm") version "1.3.71"
+//}
+//
+//repositories {
+//    jcenter()
+//}
 
-repositories {
-    jcenter()
-}
-
-buildscript {
-    repositories {
-        flatDir {
-            dirs("hash-sum-plugin/build/libs")
-        }
-    }
-    dependencies {
-        classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
-    }
-}
-
-apply(plugin = "org.jetbrains.internship")
-
-configure<org.jetbrains.internship.HashSumPluginExtension> {
-    algorithm = "SHA-256"
-}
+//buildscript {
+//    repositories {
+//        flatDir {
+//            dirs("hash-sum-plugin/build/libs")
+//        }
+//    }
+//    dependencies {
+//        classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
+//    }
+//}
+//
+//apply(plugin = "org.jetbrains.internship")
