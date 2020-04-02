@@ -14,11 +14,7 @@ class HashSumPluginTest {
     companion object {
         val HASH_SUM_FILE_PATH: String
             get() = "hash_sum.txt"
-        const val CALCULATE_SHA_1_TASK_NAME = "calculateSha1"
-
-        val String.isSHA1Content: Boolean
-            get() = matches("^[a-fA-F0-9]{40}$".toRegex())
-
+        const val TASK_NAME = "calculate"
     }
 
     private val exampleProjectDir: File =
@@ -26,37 +22,14 @@ class HashSumPluginTest {
 
     private val project: Project = ProjectBuilder.builder().withProjectDir(exampleProjectDir).build()
 
-    @Before
-    fun setUp() {
-        project.plugins.apply(HashSumPlugin::class.java)
-    }
-
-    @Test
-    fun basicTest() {
-        with(project.plugins) {
-            assertTrue(hasPlugin(HashSumPlugin::class.java))
-        }
-    }
-
-    @Test
-    fun task1Test() {
-        val calculateSha1Task = project.tasks.findByPath(CALCULATE_SHA_1_TASK_NAME)
-        assertNotNull(calculateSha1Task)
-        calculateSha1Task!!.actions.forEach {
-            it.execute(calculateSha1Task)
-        }
-        val hashSumFile = project.buildDir.resolve(HASH_SUM_FILE_PATH)
-        assertTrue(hashSumFile.exists() && hashSumFile.readText().isSHA1Content)
-    }
-
-    private fun verify(command: String, expectedAlg: Algorithm, outputFileName: String = HASH_SUM_FILE_PATH) {
-        val hashSumFile = run(command, outputFileName)
+    private fun verify(expectedAlg: Algorithm) {
+        val hashSumFile = run(HASH_SUM_FILE_PATH)
         assertEquals("Unknown hash function", expectedAlg, Algorithm.getAlgorithmWithCode(hashSumFile.readText()))
     }
 
-    private fun run(command: String, outputFileName: String = HASH_SUM_FILE_PATH): File {
-        val calculateTask = project.tasks.findByPath(command)
-        assertNotNull("Task with name $command does not exists", calculateTask)
+    private fun run(outputFileName: String = HASH_SUM_FILE_PATH): File {
+        val calculateTask = project.tasks.findByPath(TASK_NAME)
+        assertNotNull("Task with name $TASK_NAME does not exists", calculateTask)
         calculateTask!!.actions.forEach {
             it.execute(calculateTask)
         }
@@ -82,21 +55,33 @@ class HashSumPluginTest {
         }
     }
 
+    @Before
+    fun setUp() {
+        project.plugins.apply(HashSumPlugin::class.java)
+    }
+
+    @Test
+    fun basicTest() {
+        with(project.plugins) {
+            assertTrue(hasPlugin(HashSumPlugin::class.java))
+        }
+    }
+
     @Test
     fun shouldUseSha1ByDefault() {
-        verify("calculate", Algorithm.SHA1)
+        verify(Algorithm.SHA1)
     }
 
     @Test
     fun shouldSupportExtensionClassAlgorithm() {
         extend(Algorithm.SHA256)
-        verify("calculate", Algorithm.SHA256)
+        verify(Algorithm.SHA256)
     }
 
     @Test
     fun shouldSupportExtensionClassFileExtensions() {
         extend(fileExtensions = listOf("withStrangeFileExtension"))
-        val hashSum = run("calculate").readText()
+        val hashSum = run().readText()
         val md = MessageDigest.getInstance("SHA-1")
         val expected = md.digest("test".toByteArray()).toHexString()
         assertEquals(expected, hashSum)
@@ -105,21 +90,6 @@ class HashSumPluginTest {
     @Test
     fun shouldSupportExtensionClassOutputFileName() {
         extend(outputFileName = "new_file.txt")
-        run(command = "calculate", outputFileName = "new_file.txt")
-    }
-
-    @Test
-    fun shouldSupportTaskRulesMD5() {
-        verify("calculateMD5", Algorithm.MD5)
-    }
-
-    @Test
-    fun shouldSupportTaskRulesSha() {
-        verify("calculateSha256", Algorithm.SHA256)
-    }
-
-    @Test
-    fun shouldSupportTaskRulesShaWithHyphen() {
-        verify("calculateSha-256", Algorithm.SHA256)
+        run("new_file.txt")
     }
 }

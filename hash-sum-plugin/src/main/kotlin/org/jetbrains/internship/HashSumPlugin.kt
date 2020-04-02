@@ -17,29 +17,19 @@ class HashSumPlugin : Plugin<Project> {
     override fun apply(p0: Project) {
         val ext = p0.extensions.create<HashSumPluginExtension>("greeting")
 
-        p0.tasks.addRule("Pattern: calculate<ID>") {
+        p0.tasks.register("calculate", HashTask::class.java) {
             val inputDirs = mutableListOf<Directory>()
             val outFiles = mutableListOf<RegularFile>()
             for (project in p0.allprojects) {
-                val projectDir = project.layout.projectDirectory;
-                inputDirs.add(projectDir)
+                val projectDir = project.layout.projectDirectory
+                inputDirs.add(projectDir.dir("src"))
                 outFiles.add((projectDir.file("build/" + ext.outputFileName)))
             }
-
-            val taskName = this
-            if (startsWith("calculate")) {
-                p0.tasks.create(taskName, HashTask::class.java) {
-                    inputDirectories.set(inputDirs)
-                    outputFiles.set(outFiles)
-                    fileExtensions.set(ext.fileExtensions)
-                    val alg = taskName.substring(9)
-                    if (alg != "") {
-                        algorithm.set(alg)
-                    } else {
-                        algorithm.set(ext.algorithm)
-                    }
-                }
-            }
+            inputDirectories.set(inputDirs)
+            outputFiles.set(outFiles)
+            fileExtensions.set(ext.fileExtensions)
+            algorithm.set(ext.algorithm)
         }
     }
 }
+
