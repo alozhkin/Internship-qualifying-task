@@ -1,87 +1,92 @@
 package org.jetbrains.internship
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.testkit.runner.GradleRunner
 import org.jetbrains.internship.utils.Algorithm
 import org.jetbrains.internship.utils.toHexString
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Test
 import java.io.File
 import java.security.MessageDigest
 
 class HashSumPluginTest {
-    companion object {
-        val HASH_SUM_FILE_PATH: String
-            get() = "hash_sum.txt"
-        const val TASK_NAME = "calculate"
+
+    private val rootProjectDir = File(System.getProperty("user.dir")).parentFile
+
+    private val exampleProjectDir = rootProjectDir.resolve("example-project")
+
+    private val hashSumPluginDir = rootProjectDir.resolve("hash-sum-plugin")
+
+    private val buildDir = exampleProjectDir.resolve("build")
+
+
+    private fun verify(file: File, algorithm: Algorithm) {
+        assertEquals("Unknown hash function", algorithm, Algorithm.getAlgorithmWithCode(file.readText()))
     }
 
-    private val exampleProjectDir: File =
-        File(System.getProperty("user.dir")).parentFile.resolve("example-project")
-
-    private val project: Project = ProjectBuilder.builder().withProjectDir(exampleProjectDir).build()
-
-    private fun verify(expectedAlg: Algorithm) {
-        val hashSumFile = run(HASH_SUM_FILE_PATH)
-        assertEquals("Unknown hash function", expectedAlg, Algorithm.getAlgorithmWithCode(hashSumFile.readText()))
-    }
-
-    private fun run(outputFileName: String = HASH_SUM_FILE_PATH): File {
-        val calculateTask = project.tasks.findByPath(TASK_NAME)
-        assertNotNull("Task with name $TASK_NAME does not exists", calculateTask)
-        calculateTask!!.actions.forEach {
-            it.execute(calculateTask)
-        }
-        val hashSumFile = project.buildDir.resolve(outputFileName)
+    private fun run(algorithm: Algorithm? = null,
+                    fileExtensions: List<String>? = null,
+                    outputFileName: String = "hash_sum.txt"): File {
+        createBuildFile(algorithm, fileExtensions, outputFileName)
+        val result = GradleRunner.create()
+            .withProjectDir(exampleProjectDir)
+            .withArguments("calculate")
+            .build()
+        val hashSumFile = buildDir.resolve(outputFileName)
         assertTrue("Hash sum file was not created", hashSumFile.exists())
         return hashSumFile
     }
 
-    private fun extend(algorithm: Algorithm? = null,
-                       fileExtensions: List<String>? = null,
-                       outputFileName: String? = null
-    ) {
-        val ext = project.extensions.findByType(HashSumPluginExtension::class.java)
-        assertNotNull("Extension was not found", ext)
-        if (algorithm != null) {
-            ext!!.algorithm = algorithm.name
+    fun createBuildFile(algorithm: Algorithm? = null,
+                        fileExtensions: List<String>? = null,
+                        outputFileName: String? = null) {
+        val configureAlgorithm = if (algorithm != null) "algorithm = \"$algorithm\"" else ""
+        val configureOutputFileName = if (outputFileName != null) "outputFileName = \"$outputFileName\"" else ""
+        val configureFileExtensions =
+            if (fileExtensions != null) {
+                val fe = fileExtensions.joinToString(prefix = "listOf(", postfix = ")") { "\"it\""}
+                "fileExtensions = $fe"
+            } else {
+                ""
+            }
+        File("${exampleProjectDir}/build.gradle.kts").writeText("""
+        buildscript {
+            repositories {
+                flatDir {
+                    dirs("${hashSumPluginDir}/build/libs")
+                }
+            }
+            dependencies {
+                classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
+            }
         }
-        if (fileExtensions != null) {
-            ext!!.fileExtensions = fileExtensions
-        }
-        if (outputFileName != null) {
-            ext!!.outputFileName = outputFileName
-        }
-    }
 
-    @Before
-    fun setUp() {
-        project.plugins.apply(HashSumPlugin::class.java)
-    }
+        apply(plugin = "org.jetbrains.internship")
 
-    @Test
-    fun basicTest() {
-        with(project.plugins) {
-            assertTrue(hasPlugin(HashSumPlugin::class.java))
+        configure<org.jetbrains.internship.HashSumPluginExtension> {
+            $configureAlgorithm
+            $configureFileExtensions
+            $configureOutputFileName
         }
+        
+        println("ex")
+    """.trimIndent())
     }
 
     @Test
     fun shouldUseSha1ByDefault() {
-        verify(Algorithm.SHA1)
+        val file = run()
+        verify(file, Algorithm.SHA1)
     }
 
     @Test
     fun shouldSupportExtensionClassAlgorithm() {
-        extend(Algorithm.SHA256)
-        verify(Algorithm.SHA256)
+        val hashSumFile = run(Algorithm.SHA256)
+        verify(hashSumFile, Algorithm.SHA256)
     }
 
     @Test
     fun shouldSupportExtensionClassFileExtensions() {
-        extend(fileExtensions = listOf("withStrangeFileExtension"))
-        val hashSum = run().readText()
+        val hashSum = run(fileExtensions = listOf("withStrangeFileExtension")).readText()
         val md = MessageDigest.getInstance("SHA-1")
         val expected = md.digest("test".toByteArray()).toHexString()
         assertEquals(expected, hashSum)
@@ -89,7 +94,7 @@ class HashSumPluginTest {
 
     @Test
     fun shouldSupportExtensionClassOutputFileName() {
-        extend(outputFileName = "new_file.txt")
-        run("new_file.txt")
+        val hashSumFile = run(outputFileName = "new_file.txt")
+        assertEquals("new_file.txt", hashSumFile.name)
     }
 }

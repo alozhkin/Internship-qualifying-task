@@ -34,7 +34,6 @@ open class HashTask @Inject constructor(private val workerExecutor: WorkerExecut
     fun countHash() {
         val workQueue = workerExecutor.noIsolation()
         val outFiles = outputFiles.get()
-        val ext = fileExtensions
         val inputDirs = inputDirectories.get()
         for ((index, inputDir) in inputDirs.withIndex()) {
             workQueue.submit(GenerateHash::class) {

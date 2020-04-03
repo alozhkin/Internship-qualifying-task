@@ -5,16 +5,16 @@ plugins {
 repositories {
     jcenter()
 }
-
-buildscript {
-    repositories {
-        flatDir {
-            dirs("hash-sum-plugin/build/libs")
-        }
-    }
-    dependencies {
-        classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
-    }
-}
-
-apply(plugin = "org.jetbrains.internship")
+println("root")
+//buildscript {
+//    repositories {
+//        flatDir {
+//            dirs("hash-sum-plugin/build/libs")
+//        }
+//    }
+//    dependencies {
+//        classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
+//    }
+//}
+//
+//apply(plugin = "org.jetbrains.internship")
