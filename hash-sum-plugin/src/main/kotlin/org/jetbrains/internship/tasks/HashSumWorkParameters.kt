@@ -7,8 +7,8 @@ import org.gradle.api.provider.Property
 import org.gradle.workers.WorkParameters
 
 interface HashSumWorkParameters : WorkParameters {
+    val alg: Property<String>
+    val fileExt: ListProperty<String>
     val inputDirectory: DirectoryProperty
     val outputFile: RegularFileProperty
-    var alg: Property<String>
-    var extensions: ListProperty<String>
 }

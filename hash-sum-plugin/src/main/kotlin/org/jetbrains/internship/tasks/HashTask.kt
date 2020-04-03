@@ -10,6 +10,7 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
@@ -36,9 +37,9 @@ open class HashTask @Inject constructor(private val workerExecutor: WorkerExecut
         val ext = fileExtensions
         val inputDirs = inputDirectories.get()
         for ((index, inputDir) in inputDirs.withIndex()) {
-            workQueue.submit(GenerateHash::class.java) {
-                alg = algorithm
-                extensions = ext
+            workQueue.submit(GenerateHash::class) {
+                alg.set(algorithm.get())
+                fileExt.set(fileExtensions.get())
                 inputDirectory.set(inputDir)
                 outputFile.set(outFiles[index])
             }
