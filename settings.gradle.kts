@@ -7,5 +7,5 @@ pluginManagement {
         maven("https://plugins.gradle.org/m2/")
     }
 }
-rootProject.name = "root"
+rootProject.name = "internship"
 include("hash-sum-plugin", "example-project")
