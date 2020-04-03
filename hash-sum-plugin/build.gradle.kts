@@ -1,7 +1,6 @@
 plugins {
     `kotlin-dsl`
 }
-println("hash")
 repositories {
     jcenter()
     mavenCentral()
