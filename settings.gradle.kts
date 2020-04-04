@@ -10,4 +10,4 @@ pluginManagement {
     }
 }
 rootProject.name = "internship"
-include("hash-sum-plugin", "example-project")
+include("hash-sum-plugin")
