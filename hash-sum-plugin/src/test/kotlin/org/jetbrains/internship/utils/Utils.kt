@@ -8,6 +8,7 @@ enum class Algorithm {
     SHA256,
     SHA384,
     SHA512,
+    MD2,
     MD5;
 
     companion object {

@@ -38,7 +38,7 @@ open class HashTask @Inject constructor(private val workerExecutor: WorkerExecut
         for ((index, inputDir) in inputDirs.withIndex()) {
             workQueue.submit(GenerateHash::class) {
                 alg.set(algorithm.get())
-                fileExt.set(fileExtensions.get())
+                fileExt.set(fileExtensions.get().map { ".$it" })
                 inputDirectory.set(inputDir)
                 outputFile.set(outFiles[index])
             }

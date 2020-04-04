@@ -8,13 +8,15 @@ import javax.inject.Inject
 
 abstract class GenerateHash @Inject constructor() : WorkAction<HashSumWorkParameters> {
     override fun execute() {
-        val messageDigest = MessageDigest.getInstance(parameters.alg.get().normalizeToAlgorithm())
-        val suitableFiles = parameters.inputDirectory.asFileTree.files.filter { file ->
-            parameters.fileExt.get().map { ".$it" }.any { extension -> file.name.endsWith(extension) }
+        with(parameters) {
+            val messageDigest = MessageDigest.getInstance(alg.get().normalizeToAlgorithm())
+            val suitableFiles = inputDirectory.asFileTree.files.filter { file ->
+                fileExt.get().any { extension -> file.name.endsWith(extension) }
+            }
+            suitableFiles.forEach {
+                messageDigest.update(it.readBytes())
+            }
+            outputFile.asFile.get().writeText(messageDigest.digest().toHexString())
         }
-        suitableFiles.forEach {
-            messageDigest.update(it.readBytes())
-        }
-        parameters.outputFile.asFile.get().writeText(messageDigest.digest().toHexString())
     }
 }
