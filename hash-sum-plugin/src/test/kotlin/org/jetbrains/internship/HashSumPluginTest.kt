@@ -127,8 +127,8 @@ class HashSumPluginTest {
         assertEquals("Unknown hash function", algorithm, Algorithm.getAlgorithmWithCode(file.readText()))
     }
 
-    private fun checkFileExistence(filename: String) {
-        assertTrue("Hash sum file was not created", File("$buildDir/$filename").exists())
+    private fun checkFileExistence(path: String) {
+        assertTrue("Hash sum file was not created", File(path).exists())
     }
 
     @Test
@@ -155,6 +155,22 @@ class HashSumPluginTest {
     @Test
     fun shouldSupportOutputFileNameConfiguration() {
         run(outputFileName = "new_file.txt")
-        checkFileExistence("new_file.txt")
+        checkFileExistence("$buildDir/new_file.txt")
+    }
+
+    @Test
+    fun shouldCalculateHashSumInSubprojects() {
+        File("$newProjectDir/settings.gradle.kts").writeText("""
+            rootProject.name = "temp"
+            include("subproject")
+        """.trimIndent())
+        val subDir = File("$newProjectDir/subproject")
+        subDir.mkdir()
+        File("$subDir/build.gradle.kts")
+        File("$subDir/settings.gradle.kts").writeText("""
+            rootProject.name = "subproject"
+        """.trimIndent())
+        run()
+        checkFileExistence("$subDir/build/$HASH_SUM_FILENAME")
     }
 }
