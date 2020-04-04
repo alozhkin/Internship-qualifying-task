@@ -112,14 +112,4 @@ class HashSumPluginTest {
     fun shouldSupportTaskRulesMD5() {
         verify("calculateMD5", Algorithm.MD5)
     }
-
-    @Test
-    fun shouldSupportTaskRulesSha() {
-        verify("calculateSha256", Algorithm.SHA256)
-    }
-
-    @Test
-    fun shouldSupportTaskRulesShaWithHyphen() {
-        verify("calculateSha-256", Algorithm.SHA256)
-    }
 }
