@@ -96,7 +96,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/repo")
+                        dirs("${hashSumPluginDir.resolve("repo").absolutePath.replace("\\","/")}")
                     }
                 }
             }
@@ -175,7 +175,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/repo")
+                        dirs("${hashSumPluginDir.resolve("repo").absolutePath.replace("\\","/")}")
                     }
                 }
             }
