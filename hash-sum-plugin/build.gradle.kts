@@ -1,7 +1,7 @@
 plugins {
+    base
     `kotlin-dsl`
 }
-
 repositories {
     jcenter()
     mavenCentral()
@@ -12,3 +12,6 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation("junit", "junit", "4.12")
 }
+
+version = "1.0.0"
+base.archivesBaseName = "org.jetbrains.internship.gradle.plugin"
