@@ -50,12 +50,13 @@ class HashSumPluginTest {
                     outputFileName: String? = null
     ) : BuildResult {
         val buildCode = createBuildCode(algorithm, fileExtensions, outputFileName)
-        return build(arguments, buildCode)
+        val settingsCode = createSettingsCode()
+        return build(arguments, buildCode, settingsCode)
     }
 
-    private fun build(arguments: MutableList<String>, buildCode: String): BuildResult {
+    private fun build(arguments: MutableList<String>, buildCode: String, settingsCode: String): BuildResult {
         File("$newProjectDir/build.gradle.kts").writeText(buildCode)
-        File("$newProjectDir/settings.gradle.kts")
+        File("$newProjectDir/settings.gradle.kts").writeText(settingsCode)
         addSource()
         arguments.add(HASH_SUM_COMMAND)
         return GradleRunner.create()
@@ -64,39 +65,42 @@ class HashSumPluginTest {
             .build()
     }
 
-    private fun createBuildCode(algorithm: Algorithm? = null,
-                                fileExtensions: List<String>? = null,
-                                outputFileName: String? = null
+    private fun createBuildCode(
+        algorithm: Algorithm? = null,
+        fileExtensions: List<String>? = null,
+        outputFileName: String? = null
     ): String {
         val configureAlgorithm = if (algorithm != null) "algorithm = \"$algorithm\"" else ""
         val configureOutputFileName = if (outputFileName != null) "outputFileName = \"$outputFileName\"" else ""
         val configureFileExtensions =
             if (fileExtensions != null) {
-                val fe = fileExtensions.joinToString(prefix = "listOf(", postfix = ")") { "\"$it\""}
+                val fe = fileExtensions.joinToString(prefix = "listOf(", postfix = ")") { "\"$it\"" }
                 "fileExtensions = $fe"
             } else {
                 ""
             }
         return """
-        buildscript {
-            repositories {
-                flatDir {
-                    dirs("$hashSumPluginDir/build/libs")
-                }
-            }
-            dependencies {
-                classpath("org.jetbrains.internship:hash-sum-plugin:1.0.0")
-            }
+        plugins {
+            id("org.jetbrains.internship") version("1.0.0")
         }
-
-        apply(plugin = "org.jetbrains.internship")
-
         configure<org.jetbrains.internship.HashSumPluginExtension> {
             $configureAlgorithm
             $configureFileExtensions
             $configureOutputFileName
         }
     """.trimIndent()
+    }
+
+    private fun createSettingsCode(): String {
+        return """
+            pluginManagement {
+                repositories {
+                    flatDir {
+                        dirs("$hashSumPluginDir/build/libs")
+                    }
+                }
+            }
+        """.trimIndent()
     }
 
     private fun addSource() {
@@ -167,17 +171,24 @@ class HashSumPluginTest {
 
     @Test
     fun shouldCalculateHashSumInSubprojects() {
-        File("$newProjectDir/settings.gradle.kts").writeText("""
+        val settingsCode = """
+            pluginManagement {
+                repositories {
+                    flatDir {
+                        dirs("$hashSumPluginDir/build/libs")
+                    }
+                }
+            }
             rootProject.name = "temp"
             include("subproject")
-        """.trimIndent())
+        """.trimIndent()
         val subDir = File("$newProjectDir/subproject")
         subDir.mkdir()
         File("$subDir/build.gradle.kts")
         File("$subDir/settings.gradle.kts").writeText("""
             rootProject.name = "subproject"
         """.trimIndent())
-        run()
+        build(mutableListOf(), createBuildCode(), settingsCode)
         checkFileExistence("$subDir/build/$HASH_SUM_FILENAME")
     }
 

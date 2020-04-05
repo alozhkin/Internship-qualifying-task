@@ -1,4 +1,5 @@
 plugins {
+    base
     `kotlin-dsl`
 }
 repositories {
@@ -13,3 +14,4 @@ dependencies {
 }
 
 version = "1.0.0"
+base.archivesBaseName = "org.jetbrains.internship.gradle.plugin"
