@@ -25,7 +25,6 @@ class HashSumPluginTest {
     private lateinit var javaDir: File
     private lateinit var kotlinDir: File
     private lateinit var buildDir: File
-
     @Before
     fun init() {
         newProjectDir = createTempDir()
@@ -96,7 +95,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/build/libs")
+                        dirs("$hashSumPluginDir/repo")
                     }
                 }
             }
@@ -175,7 +174,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/build/libs")
+                        dirs("$hashSumPluginDir/repo")
                     }
                 }
             }

@@ -14,7 +14,6 @@ import org.gradle.kotlin.dsl.submit
 import org.gradle.workers.WorkerExecutor
 import javax.inject.Inject
 
-
 open class HashTask @Inject constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
 
     @InputFiles
