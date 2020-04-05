@@ -1,6 +1,7 @@
 plugins {
     base
     `kotlin-dsl`
+
 }
 repositories {
     jcenter()
@@ -14,4 +15,8 @@ dependencies {
 }
 
 version = "1.0.0"
-base.archivesBaseName = "org.jetbrains.internship.gradle.plugin"
+
+tasks.jar {
+    destinationDirectory.set(file("$projectDir/repo"))
+    archiveBaseName.set("org.jetbrains.internship.gradle.plugin")
+}

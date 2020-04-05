@@ -96,7 +96,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/build/libs")
+                        dirs("$hashSumPluginDir/repo")
                     }
                 }
             }
@@ -167,7 +167,7 @@ class HashSumPluginTest {
             pluginManagement {
                 repositories {
                     flatDir {
-                        dirs("$hashSumPluginDir/build/libs")
+                        dirs("$hashSumPluginDir/repo")
                     }
                 }
             }
