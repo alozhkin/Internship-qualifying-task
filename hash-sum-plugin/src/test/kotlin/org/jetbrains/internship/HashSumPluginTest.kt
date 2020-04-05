@@ -25,6 +25,7 @@ class HashSumPluginTest {
     private lateinit var javaDir: File
     private lateinit var kotlinDir: File
     private lateinit var buildDir: File
+
     @Before
     fun init() {
         newProjectDir = createTempDir()
